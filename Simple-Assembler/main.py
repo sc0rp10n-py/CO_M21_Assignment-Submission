@@ -132,6 +132,9 @@ def inschecker(instructions):
             elif instructions[i][1] == 'hlt' and len(instructions[i]) != 2:
                 print(f'Wrong ISA instruction on line {i+1}')
                 quit()
+        if instructions[i][0] == 'var' and len(instructions[i][1:len(instructions[i])]) == 0:
+            print(f'Wrong ISA instruction on line {i+1}')
+            quit()
         elif instructions[i][0] in ['add', 'sub', 'mul', 'xor', 'or', 'and'] and len(instructions[i]) != 4:
             print(f'Wrong ISA instruction on line {i+1}')
             quit()
@@ -241,7 +244,7 @@ def main():
                 t += 1
         except EOFError:
             break
-    
+    inscheck = inschecker(statements)
     inerror = in_errorhandler(statements)
 
     ins = 0
@@ -267,7 +270,6 @@ def main():
     # print(wovariables)
     varrepeat(variables)
     varcheck(statements, variables)
-    inscheck = inschecker(statements)
     flagerror(statements)
     errorhandler(statements)
     for i in range(len(instructions)):
