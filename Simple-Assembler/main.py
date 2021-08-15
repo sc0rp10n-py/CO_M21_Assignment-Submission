@@ -172,7 +172,7 @@ def errorhandler(instructions):
             print(f'Wrong ISA Syntax on line {i+1}')
             quit()
         if instructions[i][0] == 'mov' and '$' in instructions[i][2]:
-            if instructions[i][2].strip('$') not in range(0, 256):
+            if int(instructions[i][2].strip('$')) not in range(0, 255):
                 print(f'Illegal Immediate Value (less than 0 or more than 255) on line {i+1}')
                 quit()
         elif ':' in instructions[i][0]:
@@ -217,7 +217,7 @@ def typeF(op):
     #type F: halt
     print(op + '0'*11)
 
-    def main():
+def main():
     statements = {} #dictionary to store all the statements
     instructions = {} #dictionary to store all the instructions
     variables = {} #dictionary to store all the variables
