@@ -113,40 +113,45 @@ def in_errorhandler(statements):
     lblcheck(statements)
     return None
 
-def inschecker(instruction, i):
+def inschecker(instructions):
     #check for errors in instruction
-    if ':' in instruction[0]:
-        if instruction[1] in ['add', 'sub', 'mul', 'xor', 'or', 'and'] and len(instruction) != 5:
+    for i in range(len(instructions)):
+        if ':' in instructions[i][0]:
+            if len(instructions[i][1:len(instructions[i])]) == 0:
+                print(f'Wrong ISA instruction on line {i + 1}')
+                quit()
+            if instructions[i][1] in ['add', 'sub', 'mul', 'xor', 'or', 'and'] and len(instructions[i]) != 5:
+                print(f'Wrong ISA instruction on line {i+1}')
+                quit()
+            elif instructions[i][1] in ['mov', 'ld', 'st', 'div', 'rs', 'ls', 'not', 'cmp'] and len(instructions[i]) != 4:
+                print(f'Wrong ISA instruction on line {i+1}')
+                quit()
+            elif instructions[i][1] in ['jmp', 'jlt', 'jgt', 'je', 'var'] and len(instructions[i]) != 3:
+                print(f'Wrong ISA instruction on line {i+1}')
+                quit()
+            elif instructions[i][1] == 'hlt' and len(instructions[i]) != 2:
+                print(f'Wrong ISA instruction on line {i+1}')
+                quit()
+        elif instructions[i][0] in ['add', 'sub', 'mul', 'xor', 'or', 'and'] and len(instructions[i]) != 4:
             print(f'Wrong ISA instruction on line {i+1}')
             quit()
-        elif instruction[1] in ['mov', 'ld', 'st', 'div', 'rs', 'ls', 'not', 'cmp'] and len(instruction) != 4:
+        elif instructions[i][0] in ['mov', 'ld', 'st', 'div', 'rs', 'ls', 'not', 'cmp'] and len(instructions[i]) != 3:
             print(f'Wrong ISA instruction on line {i+1}')
             quit()
-        elif instruction[1] in ['jmp', 'jlt', 'jgt', 'je', 'var'] and len(instruction) != 3:
+        elif instructions[i][0] in ['jmp', 'jlt', 'jgt', 'je', 'var'] and len(instructions[i]) != 2:
             print(f'Wrong ISA instruction on line {i+1}')
             quit()
-        elif instruction[1] == 'hlt' and len(instruction) != 2:
+        elif instructions[i][0] == 'hlt' and len(instructions[i]) != 1:
             print(f'Wrong ISA instruction on line {i+1}')
             quit()
-    elif instruction[0] in ['add', 'sub', 'mul', 'xor', 'or', 'and'] and len(instruction) != 4:
-        print(f'Wrong ISA instruction on line {i+1}')
-        quit()
-    elif instruction[0] in ['mov', 'ld', 'st', 'div', 'rs', 'ls', 'not', 'cmp'] and len(instruction) != 3:
-        print(f'Wrong ISA instruction on line {i+1}')
-        quit()
-    elif instruction[0] in ['jmp', 'jlt', 'jgt', 'je', 'var'] and len(instruction) != 2:
-        print(f'Wrong ISA instruction on line {i+1}')
-        quit()
-    elif instruction[0] == 'hlt' and len(instruction) != 1:
-        print(f'Wrong ISA instruction on line {i+1}')
-        quit()
     return None
 
-def flagerror(instruction, i):
+def flagerror(instructions):
     #check for errors in flags
-    if instruction[0] != 'mov' and 'FLAGS' in instruction[1: len(instruction)]:
-        print(f'Flag Error on line {i+1}')
-        quit()
+    for i in range(len(instructions)):
+        if instructions[i][0] != 'mov' and 'FLAGS' in instructions[i][1: len(instructions[i])]:
+            print(f'Flag Error on line {i+1}')
+            quit()
 
 def varrepeat(variables):
     #check for repeat variables
@@ -261,11 +266,11 @@ def main():
     # print(variables)
     # print(wovariables)
     varrepeat(variables)
-    varcheck(instructions, variables)
+    varcheck(statements, variables)
+    inscheck = inschecker(statements)
+    flagerror(statements)
+    errorhandler(statements)
     for i in range(len(instructions)):
-        inscheck = inschecker(instructions[i], i)
-        flagerror(instructions[i], i)
-        errorhandler(instructions)
         if ':' in instructions[i][0]:
             labels[lbl] = instructions[i]
             lbl += 1
