@@ -112,3 +112,107 @@ def in_errorhandler(statements):
     varin(statements)
     lblcheck(statements)
     return None
+
+def inschecker(instruction, i):
+    #check for errors in instruction
+    if ':' in instruction[0]:
+        if instruction[1] in ['add', 'sub', 'mul', 'xor', 'or', 'and'] and len(instruction) != 5:
+            print(f'Wrong ISA instruction on line {i+1}')
+            quit()
+        elif instruction[1] in ['mov', 'ld', 'st', 'div', 'rs', 'ls', 'not', 'cmp'] and len(instruction) != 4:
+            print(f'Wrong ISA instruction on line {i+1}')
+            quit()
+        elif instruction[1] in ['jmp', 'jlt', 'jgt', 'je', 'var'] and len(instruction) != 3:
+            print(f'Wrong ISA instruction on line {i+1}')
+            quit()
+        elif instruction[1] == 'hlt' and len(instruction) != 2:
+            print(f'Wrong ISA instruction on line {i+1}')
+            quit()
+    elif instruction[0] in ['add', 'sub', 'mul', 'xor', 'or', 'and'] and len(instruction) != 4:
+        print(f'Wrong ISA instruction on line {i+1}')
+        quit()
+    elif instruction[0] in ['mov', 'ld', 'st', 'div', 'rs', 'ls', 'not', 'cmp'] and len(instruction) != 3:
+        print(f'Wrong ISA instruction on line {i+1}')
+        quit()
+    elif instruction[0] in ['jmp', 'jlt', 'jgt', 'je', 'var'] and len(instruction) != 2:
+        print(f'Wrong ISA instruction on line {i+1}')
+        quit()
+    elif instruction[0] == 'hlt' and len(instruction) != 1:
+        print(f'Wrong ISA instruction on line {i+1}')
+        quit()
+    return None
+
+def flagerror(instruction, i):
+    #check for errors in flags
+    if instruction[0] != 'mov' and 'FLAGS' in instruction[1: len(instruction)]:
+        print(f'Flag Error on line {i+1}')
+        quit()
+
+def varrepeat(variables):
+    #check for repeat variables
+    for i in range(len(variables)):
+        for j in range(len(variables)):
+            if variables[i] == variables[j] and i != j:
+                print(f'Variable Name should be unique. Repeated on line {wovariables+j+1}')
+                quit()
+
+def varcheck(instructions, variables):
+    #check for variables if defined or not
+    for i in range(len(instructions)):
+        if instructions[i][0] in ['ld', 'st']:
+            for j in range(len(variables)):
+                if variables[j][1] not in instructions[i][1:len(instructions[i])]:
+                    print(f'Undefined variable called on line {i+1}')
+                    quit()
+
+def errorhandler(instructions):
+    #main error handler
+    for i in range(len(instructions)):
+        if instructions[i][0] not in OPCODE and instructions[i][0] != 'var' and ':' not in instructions[i][0]:
+            print(f'Wrong ISA Syntax on line {i+1}')
+            quit()
+        if instructions[i][0] == 'mov' and '$' in instructions[i][2]:
+            if instructions[i][2].strip('$') not in range(0, 256):
+                print(f'Illegal Immediate Value (less than 0 or more than 255) on line {i+1}')
+                quit()
+        elif ':' in instructions[i][0]:
+            if ':' in instructions[i][1:len(instructions[i])]:
+                print(f'Nesting of labels is illegal at line {i+1}')
+                quit()
+            else:
+                for j in range(len(instructions)):
+                    if instructions[i][0] == instructions[j][0] and i != j:
+                        print(f'Label Name should be unique. Repeated on line {j+1}')
+                        quit()
+
+def typeA(op, r1, r2, r3):
+    #type A: 3 register type
+    r1 = r1.upper()
+    r2 = r2.upper()
+    r3 = r3.upper()
+    print(op + '0'*2 + REGISTER[r1] + REGISTER[r2] + REGISTER[r3])
+
+def typeB(op, r1, a):
+    #type B: register and immediate value
+    r1 = r1.upper()
+    a = a.replace('$', '')
+    print(op + REGISTER[r1] + dec2bin(a))
+
+def typeC(op, r1, r2):
+    #type C: 2 register type
+    r1 = r1.upper()
+    r2 = r2.upper()
+    print(op + '0'*5 + REGISTER[r1] + REGISTER[r2])
+    
+def typeD(op, r1, mem):
+    #type D: register and memory address type
+    r1 = r1.upper()
+    print(op + REGISTER[r1] + dec2bin(mem))
+
+def typeE(op, mem):
+    #type E: memody address type
+    print(op + '0'*3 + dec2bin(mem))
+
+def typeF(op):
+    #type F: halt
+    print(op + '0'*11)
