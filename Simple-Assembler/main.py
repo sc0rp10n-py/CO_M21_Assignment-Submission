@@ -216,3 +216,182 @@ def typeE(op, mem):
 def typeF(op):
     #type F: halt
     print(op + '0'*11)
+
+    def main():
+    statements = {} #dictionary to store all the statements
+    instructions = {} #dictionary to store all the instructions
+    variables = {} #dictionary to store all the variables
+    labels = {} #dictionary to store all the labels
+    t = 0
+    lbl = 0
+    global wovariables #instructions without variables length
+
+    while True:
+        try:
+            l = input().split()
+            if (l != ''):
+                for i in range(len(l)):
+                    l[i].strip()
+                statements[t] = l
+                t += 1
+        except EOFError:
+            break
+    
+    inerror = in_errorhandler(statements)
+
+    ins = 0
+    var = 0
+    for i in range(len(statements)):
+        if statements[i][0] == 'var':
+        	variables[var] = statements[i]
+        	var+=1                       	         
+        else:
+            instructions[ins] = statements[i]
+            ins += 1
+    
+    # print(instructions)
+    wovariables = len(instructions)
+    lenins = wovariables
+    for i in range(len(variables)):
+        instructions[lenins] = variables[i]
+        lenins += 1
+    
+    # print(statements)
+    # print(instructions)
+    # print(variables)
+    # print(wovariables)
+    varrepeat(variables)
+    varcheck(instructions, variables)
+    for i in range(len(instructions)):
+        inscheck = inschecker(instructions[i], i)
+        flagerror(instructions[i], i)
+        errorhandler(instructions)
+        if ':' in instructions[i][0]:
+            labels[lbl] = instructions[i]
+            lbl += 1
+            if instructions[i][1] == 'add':
+                typeA(OPCODE['add'], instructions[i][2], instructions[i][3], instructions[i][4])
+            elif instructions[i][1] == 'sub':
+                typeA(OPCODE['sub'], instructions[i][2], instructions[i][3], instructions[i][4])
+            elif instructions[i][1] == 'ld':
+                for j in range(len(variables)):
+                    if instructions[i][3] == variables[j][1]:
+                        mem = j + wovariables
+                        typeD(OPCODE['ld'], instructions[i][2], mem)
+            elif instructions[i][1] == 'st':
+                for j in range(len(variables)):
+                    if instructions[i][3] == variables[j][1]:
+                        mem = j + wovariables
+                        typeD(OPCODE['st'], instructions[i][2], mem)
+            elif instructions[i][1] == 'mul':
+                typeA(OPCODE['mul'], instructions[i][2], instructions[i][3], instructions[i][4])
+            elif instructions[i][1] == 'div':
+                typeC(OPCODE['div'], instructions[i][2], instructions[i][3])
+            elif instructions[i][1] == 'rs':
+                typeB(OPCODE['rs'], instructions[i][2], instructions[i][3])
+            elif instructions[i][1] == 'ls':
+                typeB(OPCODE['ls'], instructions[i][2], instructions[i][3])
+            elif instructions[i][1] == 'xor':
+                typeA(OPCODE['xor'], instructions[i][2], instructions[i][3], instructions[i][4])
+            elif instructions[i][1] == 'or':
+                typeA(OPCODE['or'], instructions[i][2], instructions[i][3], instructions[i][4])
+            elif instructions[i][1] == 'and':
+                typeA(OPCODE['and'], instructions[i][2], instructions[i][3], instructions[i][4])
+            elif instructions[i][1] == 'not':
+                typeC(OPCODE['not'], instructions[i][2], instructions[i][3])
+            elif instructions[i][1] == 'cmp':
+                typeC(OPCODE['cmp'], instructions[i][2], instructions[i][3])
+            elif instructions[i][1] == 'jmp':
+                for j in range(len(instructions)):
+                    if instructions[i][2] == instructions[j][0]:
+                        mem = j
+                        typeE(OPCODE['jmp'], mem)
+            elif instructions[i][1] == 'jlt':
+                for j in range(len(instructions)):
+                    if instructions[i][2] == instructions[j][0]:
+                        mem = j
+                        typeE(OPCODE['jlt'], mem)
+            elif instructions[i][1] == 'jgt':
+                for j in range(len(instructions)):
+                    if instructions[i][2] == instructions[j][0]:
+                        mem = j
+                        typeE(OPCODE['jgt'], mem)
+            elif instructions[i][1] == 'je':
+                for j in range(len(instructions)):
+                    if instructions[i][2] == instructions[j][0]:
+                        mem = j
+                        typeE(OPCODE['je'], mem)
+            elif instructions[i][1] == 'hlt':
+                typeF(OPCODE['hlt'])
+            elif instructions[i][1] == 'mov':
+                if '$' not in instructions[i][3]:
+                    # move register
+                    typeC(OPCODE['mov2'], instructions[i][2], instructions[i][3])
+                else:
+                    # move immediate
+                    typeB(OPCODE['mov'], instructions[i][2], instructions[i][3])
+            
+        elif instructions[i][0] == 'add':
+            typeA(OPCODE['add'], instructions[i][1], instructions[i][2], instructions[i][3])
+        elif instructions[i][0] == 'sub':
+            typeA(OPCODE['sub'], instructions[i][1], instructions[i][2], instructions[i][3])
+        elif instructions[i][0] == 'ld':
+            for j in range(len(variables)):
+                if instructions[i][2] == variables[j][1]:
+                    mem = j + wovariables
+                    typeD(OPCODE['ld'], instructions[i][1], mem)
+        elif instructions[i][0] == 'st':
+            for j in range(len(variables)):
+                if instructions[i][2] == variables[j][1]:
+                    mem = j + wovariables
+                    typeD(OPCODE['st'], instructions[i][1], mem)
+        elif instructions[i][0] == 'mul':
+            typeA(OPCODE['mul'], instructions[i][1], instructions[i][2], instructions[i][3])
+        elif instructions[i][0] == 'div':
+            typeC(OPCODE['div'], instructions[i][1], instructions[i][2])
+        elif instructions[i][0] == 'rs':
+            typeB(OPCODE['rs'], instructions[i][1], instructions[i][2])
+        elif instructions[i][0] == 'ls':
+            typeB(OPCODE['ls'], instructions[i][1], instructions[i][2])
+        elif instructions[i][0] == 'xor':
+            typeA(OPCODE['xor'], instructions[i][1], instructions[i][2], instructions[i][3])
+        elif instructions[i][0] == 'or':
+            typeA(OPCODE['or'], instructions[i][1], instructions[i][2], instructions[i][3])
+        elif instructions[i][0] == 'and':
+            typeA(OPCODE['and'], instructions[i][1], instructions[i][2], instructions[i][3])
+        elif instructions[i][0] == 'not':
+            typeC(OPCODE['not'], instructions[i][1], instructions[i][2])
+        elif instructions[i][0] == 'cmp':
+            typeC(OPCODE['cmp'], instructions[i][1], instructions[i][2])
+        elif instructions[i][0] == 'jmp':
+            for j in range(len(instructions)):
+                if instructions[i][1] == instructions[j][0].rstrip(':'):
+                    mem = j
+                    typeE(OPCODE['jmp'], mem)
+        elif instructions[i][0] == 'jlt':
+            for j in range(len(instructions)):
+                if instructions[i][1] == instructions[j][0].rstrip(':'):
+                    mem = j
+                    typeE(OPCODE['jlt'], mem)
+        elif instructions[i][0] == 'jgt':
+            for j in range(len(instructions)):
+                if instructions[i][1] == instructions[j][0].rstrip(':'):
+                    mem = j
+                    typeE(OPCODE['jgt'], mem)
+        elif instructions[i][0] == 'je':
+            for j in range(len(instructions)):
+                if instructions[i][1] == instructions[j][0].rstrip(':'):
+                    mem = j
+                    typeE(OPCODE['je'], mem)
+        elif instructions[i][0] == 'hlt':
+            typeF(OPCODE['hlt'])
+        elif instructions[i][0] == 'mov':
+            if '$' not in instructions[i][2]:
+                # move register
+                typeC(OPCODE['mov2'], instructions[i][1], instructions[i][2])
+            else:
+                # move immediate
+                typeB(OPCODE['mov'], instructions[i][1], instructions[i][2])
+    
+if __name__ == '__main__':
+    main()
