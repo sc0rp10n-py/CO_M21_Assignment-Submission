@@ -180,7 +180,7 @@ def errorhandler(instructions):
             print(f'Wrong ISA Syntax on line {i+1}')
             quit()
         if instructions[i][0] == 'mov' and '$' in instructions[i][2]:
-            if int(instructions[i][2].strip('$')) not in range(0, 255):
+            if int(instructions[i][2].strip('$')) not in range(0, 256):
                 print(f'Illegal Immediate Value (less than 0 or more than 255) on line {i+1}')
                 quit()
         elif ':' in instructions[i][0]:
