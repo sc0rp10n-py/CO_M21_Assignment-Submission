@@ -107,3 +107,69 @@ def typeB(op, r1, a):
         regValues[r1] = regValues[r1] >> a
     elif op == OPCODE['ls']:
         regValues[r1] = regValues[r1] << a
+
+def typeC(op, r1, r2):
+    r1 = REGISTER_REVERSE[r1]
+    r2 = REGISTER_REVERSE[r2]
+    if op == OPCODE['mov2']:
+        regValues[r1] = regValues[r2]
+    elif op == OPCODE['div']:
+        regValues['R0'] = regValues[r1] // regValues[r2]
+        regValues['R1'] = regValues[r1] % regValues[r2]
+    elif op == OPCODE['not']:
+        regValues[r1] = ~regValues[r2]
+    elif op == OPCODE['cmp']:
+        if regValues[r1] < regValues[r2]:
+            regValues['FLAGS'] = 4
+        elif regValues[r1] > regValues[r2]:
+            regValues['FLAGS'] = 2
+        elif regValues[r1] == regValues[r2]:
+            regValues['FLAGS'] = 1
+
+def typeD(op, r1, a):
+    r1 = REGISTER_REVERSE[r1]
+    if op == OPCODE['st']:
+        variables[bin2dec(a)] = regValues[r1]
+    elif op == OPCODE['ld']:
+        regValues[r1] = variables[bin2dec(a)]
+
+def typeE(op, a):
+    global progCount, i
+    a = bin2dec(a)
+    if op == OPCODE['jmp']:
+        i = a
+        # progCount = progList[i]
+        progCount = a
+    elif op == OPCODE['jgt']:
+        if regValues['FLAGS'] == 2:
+            i = a
+            # progCount = progList[i]
+            progCount = a
+    elif op == OPCODE['jlt']:
+        if regValues['FLAGS'] == 4:
+            i = a
+            # progCount = progList[i]
+            progCount = a
+    elif op == OPCODE['je']:
+        if regValues['FLAGS'] == 1:
+            i = a
+            # progCount = progList[i]
+            progCount = a
+    
+# def typeF(op):
+#     pass
+
+def printIns():
+    print(f'{dec2bin(progCount, 8)} {dec2bin(regValues["R0"])} {dec2bin(regValues["R1"])} {dec2bin(regValues["R2"])} {dec2bin(regValues["R3"])} {dec2bin(regValues["R4"])} {dec2bin(regValues["R5"])} {dec2bin(regValues["R6"])} {dec2bin(regValues["FLAGS"])}')
+
+def memDump(instructions):
+    count = 0
+    for i in range(len(instructions)):
+        print(f'{instructions[i]}')
+        count += 1
+    if len(variables) > 0:
+        for i in range(len(instructions), len(instructions)+len(variables)):
+            print(f'{dec2bin(variables[i])}')
+            count += 1
+    for i in range(count, 256):
+        print('0'*16)
