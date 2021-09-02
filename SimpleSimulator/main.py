@@ -78,9 +78,10 @@ def typeA(op, r1, r2, r3):
     r3 = REGISTER_REVERSE[r3]
     if op == OPCODE['add']:
         regValues[r1] = regValues[r2] + regValues[r3]
-        if regValues[r1] > 16:
+        if regValues[r1] > 65535:
             regValues['FLAGS'] = 8
-            regValues[r1] = int(str(regValues[r1])[-16:])
+            # regValues[r1] = int(str(regValues[r1])[-16:])
+            regValues[r1] = bin2dec(dec2bin(regValues[r1])[-16:])
     elif op == OPCODE['sub']:
         regValues[r1] = regValues[r2] - regValues[r3]
         if regValues[r1] < 0:
@@ -88,9 +89,10 @@ def typeA(op, r1, r2, r3):
             regValues[r1] = 0
     elif op == OPCODE['mul']:
         regValues[r1] = regValues[r2] * regValues[r3]
-        if regValues[r1] > 16:
+        if regValues[r1] > 65535:
             regValues['FLAGS'] = 8
-            regValues[r1] = int(str(regValues[r1])[-16:])
+            # regValues[r1] = int(str(regValues[r1])[-16:])
+            regValues[r1] = bin2dec(dec2bin(regValues[r1])[-16:])
     elif op == OPCODE['xor']:
         regValues[r1] = regValues[r2] ^ regValues[r3]
     elif op == OPCODE['or']:
@@ -117,7 +119,14 @@ def typeC(op, r1, r2):
         regValues['R0'] = regValues[r1] // regValues[r2]
         regValues['R1'] = regValues[r1] % regValues[r2]
     elif op == OPCODE['not']:
-        regValues[r1] = ~regValues[r2]
+        a = ''
+        r2 = dec2bin(regValues[r2])
+        for i in range(16):
+            if r2[i] == '0':
+                a += '1'
+            elif r2[i] == '1':
+                a += '0'
+        regValues[r1] = bin2dec(a)
     elif op == OPCODE['cmp']:
         if regValues[r1] < regValues[r2]:
             regValues['FLAGS'] = 4
@@ -129,7 +138,10 @@ def typeC(op, r1, r2):
 def typeD(op, r1, a):
     r1 = REGISTER_REVERSE[r1]
     if op == OPCODE['st']:
-        variables[bin2dec(a)] = regValues[r1]
+        if regValues[r1] > 65535:
+            variables[bin2dec(a)] = bin2dec(dec2bin(regValues[r1])[-16:])
+        else:
+            variables[bin2dec(a)] = regValues[r1]
     elif op == OPCODE['ld']:
         regValues[r1] = variables[bin2dec(a)]
 
@@ -274,12 +286,14 @@ def main():
             # typeF(instructions[i][0:5])
             hltrun = True
             # print('in if')
+            regValues['FLAGS'] = 0
             printIns()
             progList.append(progCount)
             break
     if hltrun == False and instructions[i][0:5] in [OPCODE['hlt']]:
         #typeF
         # typeF(instructions[i][0:5])
+        regValues['FLAGS'] = 0
         printIns()
         progList.append(progCount)
         # print('outif')
